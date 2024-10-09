@@ -8,4 +8,4 @@ Router.put('/:id',update)
 Router.delete('/:id',deleteUser)
 Router.get('/allUsers',allUsers)
 
-modeule.exports=Router;
+module.exports=Router;

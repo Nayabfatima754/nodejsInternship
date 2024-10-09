@@ -1,4 +1,4 @@
-const { json } = require("express");
+const User = require('../models/userModel')
 
  
  const register = async(req,res)=>{
