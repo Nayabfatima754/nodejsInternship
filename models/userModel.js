@@ -6,9 +6,10 @@ const userSchema = new mongoose.Schema({
         type: String,
     },
     email: {
-        required: true, // Fixed the typo here
+        required: true, 
         type: String,
-        unique: true, // Consider making the email unique
+        unique: true, 
+        index:"true"
     },
     password: {
         required: true,

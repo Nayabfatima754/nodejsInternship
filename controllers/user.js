@@ -122,6 +122,75 @@ const update = async (req, res) => {
                 console.log(err);
                 return res.status(500).json({ message: "Internal server error" });
             }
-        } // Call the passport middleware with req, res, next
+        } 
+
+        const searchUserWithID = async (req, res) => {
+            const userID = req.params.id;
+            
+            try {
+                if (!userID) {
+                    return res.status(400).json({ message: "Please provide the user ID you want to search" });
+                }
+        
+                // Search for the user by ID and return the 'name' and 'email' fields only
+                const user = await User.findById(userID, { name: 1, email: 1 });
+                
+                if (!user) {
+                    return res.status(404).json({ message: "User not found" });
+                }
+        
+                return res.status(200).json(user);
+            } catch (err) {
+                console.log(err);
+                return res.status(500).json({ message: "Internal server error" });
+            }
+        };
+        
+    const searchUserWithEmail = async (req, res) => {
+        const { email } = req.body;  // Extract email from request body
+        try {
+            if (!email) {
+                return res.status(400).json({ message: "Please provide the user email you want to search" });
+            }
     
-    module.exports = { register, login, update, deleteUser, allUsers };
+            // Search for user with the provided email and return only the 'name' field
+            const user = await User.findOne({ email: email }, { name: 1 });
+            if (!user) {
+                return res.status(404).json({ message: "User not found" });
+            }
+    
+            return res.status(200).json(user);
+        } catch (err) {
+            console.log(err);
+            return res.status(500).json({ message: "Internal server error" });
+        }
+    };
+//aggregation pipeline
+    const searchUsers= async(req,res)=>{
+        const {userType}=req.body
+        try{
+            if(!userType){
+                return res.status(400).json({ message: "Please provide userType" });
+
+            }
+            const users = await User.aggregate([
+               { $match:{userType:"customer"} },
+               { $group:{
+                _id: "$_id",           // Use `_id` to retain unique users
+                    name: { $first: "$name" },    // Project 'name' field
+                    email: { $first: "$email" },  // Project 'email' field
+                    userType: { $first: "$userType" } // Project 'userType' field
+                }}
+            ])
+            if(!users){
+                return res.status(404).json({message:"user not found"})
+            }
+            return res.status(200).json({users})
+
+        }catch(err){
+        console.log(err)
+        return res.status(500).json({ message: "Internal server error" });
+    }}
+    
+    module.exports = { register, login, update, deleteUser, allUsers,searchUserWithID ,searchUserWithEmail,searchUsers};
+    
